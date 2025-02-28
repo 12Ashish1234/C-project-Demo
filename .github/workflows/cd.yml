@@ -17,17 +17,20 @@ jobs:
       # - name: Download artifact
       #   uses: actions/download-artifact@v4
       #   with:
-      #     name: my-data          
+      #     name: my-data
+      - name: Set global variable for run number
+        run: |
+          WORKFLOW_ID="pull.yml"
+          LATEST_RUN=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$WORKFLOW_ID/runs?per_page=1" | jq -r '.workflow_runs[0].run_number')
+          echo "LATEST_RUN=$LATEST_RUN"
+          echo "RUN_NUMBER=$LATEST_RUN" >> $GITHUB_ENV            
       - name: Pull docker image
-        run: docker pull ashish21bd/test-c-app:$run_number
+        run: docker pull ashish21bd/test-c-app:${{ env.RUN_NUMBER }}
       - name: Delete Old docker container
         run: docker rm -f cicd-pipeline-container || true
       - name: Run docker container
         run: |
           # run_number=$(cat data.txt)
           # echo "$run_number"
-          WORKFLOW_ID="pull.yml"
-          LATEST_RUN=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/$WORKFLOW_ID/runs?per_page=1" | jq -r '.workflow_runs[0].run_number')
-          echo "LATEST_RUN=$LATEST_RUN"
-          docker run -d --name cicd-pipeline-container ashish21bd/test-c-app:$LATEST_RUN
+          docker run -d --name cicd-pipeline-container ashish21bd/test-c-app:${{ env.RUN_NUMBER }}

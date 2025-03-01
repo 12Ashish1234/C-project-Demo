@@ -87,5 +87,6 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6.13.0
         with:
+          context: ./src
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/test-c-app:${{ github.run_number }}

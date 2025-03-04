@@ -71,17 +71,19 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Ensures at least the last two commits are available
 
       - name: Check for changes in the docker folder
         id: filter
         run: |
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
           echo "Changed files: $CHANGED_FILES"
-          # if echo "$CHANGED_FILES" | grep -qE '^src/'; then
-          #   echo "RUN_DOCKER_BUILD=true" >> $GITHUB_ENV
-          # else
-          #   echo "RUN_DOCKER_BUILD=false" >> $GITHUB_ENV
-          # fi
+          if echo "$CHANGED_FILES" | grep -qE '^docker/'; then
+            echo "RUN_DOCKER_BUILD=true" >> $GITHUB_ENV
+          else
+            echo "RUN_DOCKER_BUILD=false" >> $GITHUB_ENV
+          fi
 
       # - name: Login to Docker Hub
       #   if: env.RUN_DOCKER_BUILD == 'true'

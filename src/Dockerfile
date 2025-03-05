@@ -1,3 +1,4 @@
+# Base Image
 FROM ubuntu:24.04
 
 # Install dependencies: g++, curl, cmake, and libgtest-dev
